@@ -1,4 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
+import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import tailwindcss from '@tailwindcss/vite';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import { defineConfig, type Plugin } from 'vite';
@@ -1272,6 +1273,60 @@ export default defineConfig({
 			// One module per locale instead of one per message: with thousands of messages the
 			// per-message layout makes the production build run out of memory.
 			outputStructure: 'locale-modules'
+		}),
+		SvelteKitPWA({
+			registerType: 'autoUpdate',
+			includeAssets: [
+				'favicon.ico',
+				'apple-touch-icon.png',
+				'favicon-32x32.png',
+				'favicon-16x16.png',
+				'android-chrome-192x192.png',
+				'android-chrome-512x512.png',
+				'logo-dark.webp',
+				'logo-light.webp'
+			],
+			manifest: {
+				name: 'Dockhand',
+				short_name: 'Dockhand',
+				description: 'Docker management UI',
+				theme_color: '#1e1e2e',
+				background_color: '#1e1e2e',
+				display: 'standalone',
+				scope: '/',
+				start_url: '/',
+				icons: [
+					{
+						src: '/android-chrome-192x192.png',
+						sizes: '192x192',
+						type: 'image/png'
+					},
+					{
+						src: '/android-chrome-512x512.png',
+						sizes: '512x512',
+						type: 'image/png',
+						purpose: 'any maskable'
+					}
+				]
+			},
+			workbox: {
+				globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
+				runtimeCaching: [
+					{
+						urlPattern: /^https?:\/\/.*\/.*$/i,
+						handler: 'NetworkFirst',
+						options: {
+							cacheName: 'pages',
+							expiration: {
+								maxEntries: 50,
+								maxAgeSeconds: 60 * 60 * 24
+							}
+						}
+					}
+				],
+				navigateFallback: '/',
+				navigateFallbackAllowlist: [/^\/[^?]*$/]
+			}
 		}),
 		tailwindcss(),
 		sveltekit(),
